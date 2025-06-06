@@ -56,22 +56,22 @@ Output:
                 |____ screenshots
                 |____ test_report.html <-- pytest html report
                 |____ test_result.xml  <-- JUnit report
-
+        |____ rules
+                |____ keywords.txt
+                |____ ...
         |____ src
                 |____ core
                         |____ find_keyword.py
                         |____ todo_future_py...
                 |____ config
                         |____ config.py (Contains the configuration for entire framework)[HP]
-
-                |____ tests
-                        |____ test_*.py
-                        |____ ...
                 |____ utilities
                         |____ 
                         |____ Utilities.py (Common Utility)
                 |____ __init__.py
-
+        |____ tests
+                |____ test_*.py
+                |____ ...
         |____ conftest.py (Contains pytest common fixtures)
         |____ LICENSE
         |____ pytest.ini (Contains pytest configuration)

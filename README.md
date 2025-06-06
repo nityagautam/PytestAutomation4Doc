@@ -1,6 +1,17 @@
 # PytestAutomation4Doc
 Pytest automation for the documentation testing
 
+- Keyword search in document file with follwing extension
+    - PDF
+    - HTML
+    - TXT
+
+> Usecase: Lets say we want to find that any document shall not have older build no anywhere in the document. Etc...
+
+- TODO: Spelling and Grammer Check for documents with following extension
+    - HTML
+    - PDF
+
 
 ### Pre-Requisite:
 <pre>

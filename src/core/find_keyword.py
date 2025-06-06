@@ -1,10 +1,16 @@
-
+"""
+@author: Ashutosh Mishra | ashutosh_mishra_@outlook.com
+@created: 5 Jun 2025
+@last_modified: 06 Jun 2025
+@desc: FindKeyword Class;
+    This class is used to find keywords in files with specific extensions (HTML, PDF, TXT).
+@note: This class will return the count of issues found and the relevant data.
+"""
 
 
 import re
 from bs4 import BeautifulSoup
-
-from src.utilities.utilities import Utilities
+import fitz
 
 
 class FindKeyword:
@@ -31,10 +37,6 @@ class FindKeyword:
             with open(self.keywords_file, 'r') as file:
                 self.keywords = [keyword.strip() for keyword in file.readlines()]
 
-            # If verbose mode is enabled, print the loaded keyword
-            if self.verbose:
-                print(f"Loaded keyword: {self.keywords}")
-
         except FileNotFoundError as e:
             if self.verbose:
                 print(f"Keyword file '{self.keywords_file}' not found.\nRefer: {e}\n")
@@ -55,7 +57,7 @@ class FindKeyword:
             return False
         
 
-    def __find_keyword_in_html(self) -> bool:
+    def __find_keyword_in_html(self) -> tuple:
         """Find keyword in HTML content."""
         file_data = []
         issue_counter = 0
@@ -99,10 +101,63 @@ class FindKeyword:
         # Return the Collected data
         return issue_counter, file_data
     
-    def __find_keyword_in_pdf(self):
-        return True
+    def __find_keyword_in_pdf(self) -> tuple:
+        """Find keyword in PDF content."""
+        file_data = []
+        issue_counter = 0
+        line_counter = 1
+
+        try:
+            # Open the PDF file using PyMuPDF (fitz)
+            # Note: fitz is the PyMuPDF library, which allows for PDF manipulation
+            # Ensure that the file exists and is a valid PDF
+            pdf_doc = fitz.open(self.src_file)
+
+            # Iterate through each page in the PDF document
+            for page_num in range(len(pdf_doc)):
+
+                page = pdf_doc[page_num]
+                page_text = page.get_text("text")
+
+                # Split the text into sentences
+                page_sentences = re.split(r'(?<!\W\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', page_text)
+
+                # Iterate through each sentence in the PDF content
+                for sentence in page_sentences:
+                    sentence = " ".join(s.strip() for s in sentence.splitlines())
+
+                    # verbose mode: print the current page and sentence being processed
+                    if self.verbose:
+                        print(f"Processing Page {page_num + 1}, Line {line_counter}: {sentence}")
+
+                    # Iterate through each keyword and check if it is present in the sentence
+                    for keyword in self.keywords:
+
+                        # Check if the keyword is present in the sentence; Consider lower case always
+                        if keyword.lower() in sentence.lower():
+                            issue_counter += 1
+                            file_data.append({
+                                "file": self.src_file,
+                                "page": page_num + 1,  # Page numbers are 1-indexed
+                                "line": line_counter,
+                                "sentence": sentence
+                            })
+
+                    # Increment the line counter for each sentence processed
+                    line_counter += 1
+
+            # Close the PDF document
+            pdf_doc.close()
+
+        except fitz.FileDataError as e:
+            if self.verbose:
+                print(f"Error reading PDF file {self.src_file}: {e}")
+            return -1, file_data
+
+        # Return the Collected data
+        return issue_counter, file_data
     
-    def __find_keyword_in_txt(self):
+    def __find_keyword_in_txt(self) -> tuple:
         # TODO: Does not work fully yet, need to enhance it further
         """
         Find keyword in text content.
@@ -159,3 +214,18 @@ class FindKeyword:
         
         # Return the Collected data
         return issue_counter, file_data 
+    
+
+
+if __name__ == "__main__":
+    # HTML Example usage of the FindKeyword class
+    # find_keyword = FindKeyword(src_file="./out/report.html", keywords_file="keywords.txt", file_ext="html", verbose=True)
+    # issue_count, data = find_keyword.find()
+    # print(f"Issue Count: {issue_count}")
+    # print(f"Data: {data}")
+
+    # PDF Example usage of the FindKeyword class
+    find_keyword_pdf = FindKeyword(src_file="./out/sample.pdf", keywords_file="./rules/keywords.txt", file_ext="pdf", verbose=True)
+    issue_count_pdf, data_pdf = find_keyword_pdf.find()
+    print(f"Issue Count PDF: {issue_count_pdf}")
+    print(f"Data PDF: {data_pdf}")

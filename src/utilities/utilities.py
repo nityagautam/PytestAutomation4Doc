@@ -67,6 +67,17 @@ class Utilities:
             return True
         return False
     
+    def write_text_file(self, file_path, data: str, mode: str = 'w'):
+        import os
+
+        # Check if the file exists, if not create it
+        if not os.path.exists(file_path):
+            self.create_file(file_path)
+
+        # Write data to the text file
+        with open(file_path, mode=mode) as file:
+            file.write(data  + "\n")
+
     def write_csv_file(self, file_path, data: list, mode: str = 'w'):
         import csv
         import os
@@ -76,6 +87,7 @@ class Utilities:
             self.create_file(file_path)
 
         # Write data to the CSV file
+        # print(f"data: {data}, isinstance(data, list): {isinstance(data, list)}")
         with open(file_path, mode=mode, newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(data)

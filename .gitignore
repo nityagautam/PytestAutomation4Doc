@@ -1,5 +1,6 @@
 # Custom .gitignore for Python projects
 out/
+!out/screenshots/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

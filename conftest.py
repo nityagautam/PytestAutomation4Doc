@@ -6,9 +6,16 @@ def pytest_addoption(parser):
     """Add custom command line options for pytest."""
     parser.addoption("--file_ext", action="store", default="html", help="File extension to search for (default: html)")
     parser.addoption("--target_dir", action="store", default="./out", help="Source directory to search in (default: ./out)")
+    parser.addoption("--keyword_file", action="store", default="./rules/keywords.txt", help="Source directory to search in (default: ./rules/keywords.txt)")
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
+def keyword_file(request):
+    """Fixture to provide the keyword file path for tests."""
+    return request.config.getoption("--keyword_file")
+
+
+@pytest.fixture(scope="session")
 def file_ext(request):
     """Fixture to provide the list of files from the target directory with given extensions for tests."""
     return request.config.getoption("--file_ext")
@@ -33,10 +40,11 @@ def pytest_generate_tests(metafunc):
 
     # This section is specific to the keyword search functionality
     # ------------------------------------------------------------------
-    if "target_dir" in metafunc.fixturenames:
-        metafunc.parametrize("target_dir", metafunc.config.getoption("target_dir"))
-    if "file_ext" in metafunc.fixturenames:
-        metafunc.parametrize("file_ext", ["html"], ids=["HTML"])
+    # if "target_dir" in metafunc.fixturenames:
+    #     metafunc.parametrize("target_dir", metafunc.config.getoption("target_dir"))
+    # if "file_ext" in metafunc.fixturenames:
+    #     metafunc.parametrize("file_ext", ["html"], ids=["HTML"])
+    
     if "file_list" in metafunc.fixturenames:
         given_dir = metafunc.config.getoption("target_dir")
         given_extension = metafunc.config.getoption("file_ext")
